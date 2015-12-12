@@ -20,12 +20,12 @@ import play.api.libs.functional.syntax._
 class Application extends Controller {
 
   implicit val messageWrites: Writes[Message] = (
-    (JsPath \ "id").write[Int] and
+    (JsPath \ "id").writeNullable[Int] and
     (JsPath \ "message").write[String]
   )(unlift(Message.unapply _))
 
   implicit val messageReads: Reads[Message] = (
-    (JsPath \ "id").read[Int] and
+    (JsPath \ "id").readNullable[Int] and
     (JsPath \ "message").read[String]
   )(Message.apply _)
 
@@ -37,6 +37,20 @@ class Application extends Controller {
     })
   }
 
+  def create = Action.async(BodyParsers.parse.json) { request => 
+    val message = request.body.validate[Message]
+    message.fold(
+      errors => {
+        Future(BadRequest(Json.obj("status" -> "Message creation failed", "message" -> JsError.toJson(errors))))
+      },
+      message => {
+        Messages.create(message)
+          .map(m => Ok(Json.toJson(m)))
+      }
+    )
+    
+  }
+
   def findOne(id: Int) = Action.async {
     val message: Future[Message] = Messages.show(id)
     message.map(msg => Ok(Json.toJson(msg)))
@@ -46,7 +60,7 @@ class Application extends Controller {
     val message = request.body.validate[Message]
     message.fold(
       errors => {
-        Future(BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toJson(errors))))
+        Future(BadRequest(Json.obj("status" -> "Message update failed", "message" -> JsError.toJson(errors))))
       },
       message => {
         Messages.update(id, message)

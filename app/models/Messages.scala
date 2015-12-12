@@ -11,15 +11,15 @@ import play.api._
 import play.api.mvc._
 
 case class Message (
-  id: Int,
+  id: Option[Int],
   message: String
 )
 
 class Messages (tag: Tag) extends Table[Message](tag, "messages") {
-  def id = column[Int]("id", O.PrimaryKey)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def message = column[String]("message")
 
-  def * = (id, message) <> (Message.tupled, Message.unapply _)
+  def * = (id.?, message) <> (Message.tupled, Message.unapply _)
 }
 
 object Messages {
@@ -45,5 +45,9 @@ object Messages {
 
   def delete(id: Int) = {
     dbConfig.db.run(findQuery(id).delete)
+  }
+
+  def create(message: Message) = {
+    dbConfig.db.run(messages += message)
   }
 }

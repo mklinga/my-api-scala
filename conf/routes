@@ -4,6 +4,8 @@
 
 # Home page
 GET     /                           controllers.Application.index
+POST    /                           controllers.Application.create
+
 GET     /:id                        controllers.Application.findOne(id: Int)
 PUT     /:id                        controllers.Application.update(id: Int)
 DELETE  /:id                        controllers.Application.delete(id: Int)
