@@ -1,14 +1,9 @@
 package models;
 
-import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
 import slick.driver.JdbcProfile
 import slick.driver.PostgresDriver.api._
 import play.api.db.slick.DatabaseConfigProvider
 import play.api._
-import play.api.mvc._
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -55,7 +50,7 @@ object Messages {
     dbConfig.db.run(messages returning messages += message)
   }
 
-  def show(id: Int): Future[Message] = {
+  def show(id: Int) = {
     dbConfig.db.run(findQuery(id).result.head)
   }
 
