@@ -1,0 +1,9 @@
+postgres:  
+  image: postgres
+  ports:
+    - "5432:5432"
+  environment:
+    - POSTGRES_USER=play
+    - POSTGRES_PASSWORD=secret
+  volumes:
+    - /var/lib/postgresql/data
