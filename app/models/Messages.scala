@@ -35,6 +35,10 @@ object Messages {
     dbConfig.db.run(messages.result)
   }
 
+  def create(message: Message) = {
+    dbConfig.db.run(messages returning messages += message)
+  }
+
   def show(id: Int): Future[Message] = {
     dbConfig.db.run(findQuery(id).result.head)
   }
@@ -47,7 +51,4 @@ object Messages {
     dbConfig.db.run(findQuery(id).delete)
   }
 
-  def create(message: Message) = {
-    dbConfig.db.run(messages += message)
-  }
 }
