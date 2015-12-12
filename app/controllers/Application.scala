@@ -19,34 +19,20 @@ import play.api.libs.functional.syntax._
 
 class Application extends Controller {
 
-  implicit val messageWrites: Writes[Message] = (
-    (JsPath \ "id").writeNullable[Int] and
-    (JsPath \ "message").write[String]
-  )(unlift(Message.unapply _))
-
-  implicit val messageReads: Reads[Message] = (
-    (JsPath \ "id").readNullable[Int] and
-    (JsPath \ "message").read[String]
-  )(Message.apply _)
 
   def index = Action.async {
     val msg: Future[Seq[Message]] = Messages.list
-    msg.map(m => {
-      val json = Json.toJson(m)
-      Ok(json)
-    })
+    msg.map(m => Ok(Json.toJson(m)))
   }
 
   def create = Action.async(BodyParsers.parse.json) { request => 
     val message = request.body.validate[Message]
     message.fold(
-      errors => {
-        Future(BadRequest(Json.obj("status" -> "Message creation failed", "message" -> JsError.toJson(errors))))
-      },
-      message => {
-        Messages.create(message)
-          .map(m => Ok(Json.toJson(m)))
-      }
+      errors => 
+        Future(BadRequest(Json.obj("status" -> "Parsing message failed", "message" -> JsError.toJson(errors)))),
+      message => 
+        Messages.create(message).map(m =>
+            Ok(Json.obj("status" -> "Success", "message" -> Json.toJson(m))))
     )
     
   }
@@ -59,12 +45,11 @@ class Application extends Controller {
   def update(id: Int) = Action.async(BodyParsers.parse.json) { request =>
     val message = request.body.validate[Message]
     message.fold(
-      errors => {
-        Future(BadRequest(Json.obj("status" -> "Message update failed", "message" -> JsError.toJson(errors))))
-      },
+      errors => 
+        Future(BadRequest(Json.obj("status" -> "Message update failed", "message" -> JsError.toJson(errors)))),
       message => {
         Messages.update(id, message)
-        Future(Ok(Json.toJson(Map("message" -> "OK"))))
+        Future(Ok(Json.obj("message" -> "OK")))
       }
     )
   }
