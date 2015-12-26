@@ -60,4 +60,4 @@ class Application @Inject()(dbConfigProvider: DatabaseConfigProvider) extends Co
   def delete(id: Int) = Action.async {
     dbConfig.db.run(findQuery(id).delete).map(m => Ok(Json.obj("status" -> "Ok")))
   }
-} // end controller
+}
